@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SVG Loom</title>
+    <link rel="canonical" href="https://svg-loom.glitch.me/" />
+    <meta name="description" content="A parameterized loom for laser cutting" />
+    <meta name="robots" content="index,follow" />
+    <meta property="og:title" content="SVG Loom" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://svg-loom.glitch.me/" />
+    <meta
+      property="og:description"
+      content="A parameterized loom for laser cutting"
+    />
+    <meta
+      property="og:image"
+      content="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2Fhello-website-social.png?v=1616712748147"
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="stylesheet" href="/style.css" />
+
+    <script src="/script.js" defer></script>
+  </head>
+  <body>
+    <title>SVG Loom</title>
+    <main>
+      <svg
+        viewbox="0 0 290 580"
+        width="3.5in"
+        height="7.125in"
+        fill="none"
+        stroke="black"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <style>
+          text {
+            fill: none;
+            stroke: red;
+            text-anchor: middle;
+            font: 12px Verdana, Helvetica, Arial, sans-serif;
+            dominant-baseline: middle;
+          }
+        </style>
+        <!--viewport units are 1/80 of an inch -->
+      </svg>
+    </main>
+    <form>
+      <!--       <p><label>Number of teeth <input value="12"></label></p> -->
+      <p>
+        <label
+          >Top Text
+          <input
+            id="text1"
+            value="https://svg-loom.glitch.me/"
+          />
+        </label>
+      </p>
+      <p>
+        <label
+          >Bottom Text
+          <input
+            id="text2"
+            value="dethe@livingcode.org"
+          />
+        </label>
+      </p>
+      <p>
+        <button id="download-file">Download SVG</button>
+      </p>
+    </form>
+  </body>
+</html>
