@@ -157,7 +157,8 @@ function tooth(length) {
   return `h${length - 5} a5 5 0 0 1 0 10 h${-(length - 5)}`;
 }
 
-function loom() {
+// loom 3.5" x 7.125"
+function loom35() {
   outerFrame(0, 0, 280, 570, 30);
   rect(20, 50, 250, 470, "red"); // decorative
   innerFrame(30, 70, 230, 380, 30);
@@ -169,7 +170,7 @@ function loom() {
   text('text2', 540);
 }
 
-loom();
+loom35();
 
 function downloadFile() {
   save(`${SVGHEAD}${svg.outerHTML}`);
