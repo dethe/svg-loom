@@ -37,9 +37,21 @@ function comment(txt) {
 }
 
 function clear() {
-  while (svg.firstChildElement) {
-    svg.lastChildElement.remove();
+  console.log("clearing %s children", svg.children.length - 1);
+  while (svg.lastElementChild.tagName !== "style") {
+    svg.lastElementChild.remove();
   }
+  if (svg.children.length > 1) {
+    console.error(
+      "something went wrong, there are still %s children",
+      svg.children.length
+    );
+  }
+}
+
+function resize(width, height) {
+  svg.setAttribute("width", width / 80 + 0.1 + "in");
+  svg.setAttribute("height", height / 80 + 0.1 + "in");
 }
 
 function outerFrame(x, y, teeth, height) {
@@ -80,12 +92,11 @@ function rect(x, y, width, height, stroke) {
   svg.appendChild(elem("rect", { x, y, width, height, stroke }));
 }
 
-function text(textId, y) {
+function text(textId, x, y) {
   let source = document.getElementById(textId);
-  let t = elem("text", { x: 140, y });
+  let t = elem("text", { x, y, id: textId + "_svg" });
   t.textContent = source.value;
   svg.appendChild(t);
-  source.oninput = evt => (t.textContent = source.value);
 }
 
 function notch(dir) {
@@ -181,35 +192,50 @@ function tooth(length) {
   return `h${length - 5} a5 5 0 0 1 0 10 h${-(length - 5)}`;
 }
 
-// loom 2.75" x 5.5"
-function loom275() {
-  const teeth = 12;
-  const width = 220;
-  const height = 440;
-}
-
-// loom 3.5" x 7"
-function loom35() {
-  const teeth = 16;
-  loomWithAccessories(teeth);
-}
-
 function loomWithAccessories(teeth) {
   const width = teeth * 15 + 40;
   const height = width * 2;
   clear();
-  outerFrame(0, 0, teeth, height, 20); // should be 280 or 3.5"
+  resize(width, height);
+  let actualWidth = outerFrame(0, 0, teeth, height, 20); // should be 280 or 3.5"
+  if (actualWidth !== width) {
+    console.error("Expected %s, but got %s", width, actualWidth);
+  } else {
+    console.log('All good, %s" wide', width / 80);
+  }
+  // original height = 570
   rect(20, 50, width - 40, height - 100, "red"); // decorative
   innerFrame(30, 70, width - 60, height - 190, 30);
-  rect(55, 470, width - 120, 14); // slot for stand
-  needle(50, 130, 30, 300, 10, 4);
-  needle(220, 130, 30, 300, 10, 4);
+  rect(55, height - 100, width - 120, 14); // slot for stand
+  let needleHeight = height / 2 - 35;
+  let needleWidth = needleHeight / 10;
+  needle(50, 130, needleWidth, needleHeight, 10, 4);
+  needle(width - 60, 130, needleWidth, needleHeight, 10, 4);
   comb(100, 150, 90, 13, 30);
-  text("text1", 30);
-  text("text2", 540);
+  text("text1", width / 2, 30);
+  text("text2", width / 2, height - 30);
 }
 
-loom35();
+loomWithAccessories(16);
+
+function chooseSize(evt) {
+  console.log(evt);
+  switch (evt.currentTarget.value) {
+    case "large":
+      loomWithAccessories(20);
+      break;
+    case "medium":
+      loomWithAccessories(16);
+      break;
+    case "small":
+      loomWithAccessories(12);
+      break;
+    default:
+      // do nothing
+      console.log(evt.currentTarget.value);
+      break;
+  }
+}
 
 function downloadFile() {
   save(`${SVGHEAD}${svg.outerHTML}`);
@@ -230,6 +256,22 @@ function save(data) {
   reader.readAsDataURL(new Blob([data], { type: "image/svg+xml" }));
 }
 
+function setValue(evt) {
+  let source = evt.currentTarget;
+  let target = svg.querySelector("#" + source.id + "_svg");
+  target.textContent = source.value;
+}
+
+// setup event handlers
+
 document
   .querySelector("#download-file")
   .addEventListener("click", downloadFile);
+
+document
+  .querySelectorAll("input[type='radio']")
+  .forEach(e => e.addEventListener("input", chooseSize));
+
+document
+  .querySelectorAll("input[type='text']")
+  .forEach(e => e.addEventListener("input", setValue));
