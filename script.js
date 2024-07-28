@@ -171,8 +171,8 @@ function needle(x, y, width, height, r1, r2) {
 }
 
 function comb(x, y, width, teeth, radius) {
-  const height = teeth * 20 - 10;
-  const toothLength = 60;
+  const height = teeth * 16 - 8;
+  const toothLength = width - radius;
   comment("Comb");
   addPath([
     `M${x} ${y + radius}`,
@@ -180,8 +180,8 @@ function comb(x, y, width, teeth, radius) {
     `m${BREAKAWAY},0`,
     Array(teeth)
       .fill(0)
-      .map(_ => tooth(60))
-      .join(" a5 5 0 0 0 0 10 "),
+      .map(_ => tooth(toothLength))
+      .join(" a4 4 0 0 0 0 8 "),
     `m${-BREAKAWAY},0`,
     `a${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
     `v${-(height - radius * 2)}`,
@@ -189,7 +189,7 @@ function comb(x, y, width, teeth, radius) {
 }
 
 function tooth(length) {
-  return `h${length - 5} a5 5 0 0 1 0 10 h${-(length - 5)}`;
+  return `h${length - 8} a4 4 0 0 1 0 8 h${-(length - 8)}`;
 }
 
 function loomWithAccessories(teeth) {
@@ -209,9 +209,16 @@ function loomWithAccessories(teeth) {
   rect(55, height - 100, width - 120, 14); // slot for stand
   let needleHeight = height / 2 - 35;
   let needleWidth = needleHeight / 10;
-  needle(50, 130, needleWidth, needleHeight, 10, 4);
-  needle(width - 60, 130, needleWidth, needleHeight, 10, 4);
-  comb(100, 150, Math.round(width / 3), teeth + 1, 20);
+  needle(50, 70 + height / 10, needleWidth, needleHeight, 10, 4);
+  needle(width - 60, 70 + height / 10, needleWidth, needleHeight, 10, 4);
+  let combWidth = Math.round(width / 4);
+  comb(
+    width / 2 - combWidth / 2,
+    60 + height / 10,
+    Math.round(width / 4),
+    teeth + 1,
+    20
+  );
   text("text1", width / 2, 30);
   text("text2", width / 2, height - 30);
 }
