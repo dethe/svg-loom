@@ -30,7 +30,7 @@ function addPath(path) {
   svg.append(elem("path", { d: path.join(" ") }));
 }
 
-function comment(txt){
+function comment(txt) {
   svg.append(document.createComment(txt));
 }
 
@@ -43,7 +43,7 @@ function outerFrame(x, y, width, height, radius) {
     `a${radius} ${radius} 0 0 1 ${radius} ${-radius}`,
     Array(12)
       .fill(0)
-      .map((_) => notch(1))
+      .map(_ => notch(1))
       .join(" h10 "),
     `a${radius} ${radius} 0 0 1 ${radius} ${radius}`,
     lock(-1),
@@ -52,7 +52,7 @@ function outerFrame(x, y, width, height, radius) {
     `a${radius} ${radius} 0 0 1 ${-radius} ${radius}`,
     Array(12)
       .fill(0)
-      .map((_) => notch(-1))
+      .map(_ => notch(-1))
       .join(" h-10 "),
     `a${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
     lock(1),
@@ -71,12 +71,12 @@ function rect(x, y, width, height, stroke) {
   svg.appendChild(elem("rect", { x, y, width, height, stroke }));
 }
 
-function text(textId, y){
+function text(textId, y) {
   let source = document.getElementById(textId);
-  let t = elem("text", {x: 140, y });
+  let t = elem("text", { x: 140, y });
   t.textContent = source.value;
   svg.appendChild(t);
-  source.oninput = (evt) => t.textContent = source.value;
+  source.oninput = evt => (t.textContent = source.value);
 }
 
 function notch(dir) {
@@ -91,7 +91,9 @@ function innerFrame(x, y, width, height, radius) {
   const r2_2 = radius2 * 2;
   const r3_2 = r3 * 2;
   const r4 = radius * 2 + radius2;
-  comment("The inner frame, used to prop up the loom and to hold the needles and comb");
+  comment(
+    "The inner frame, used to prop up the loom and to hold the needles and comb"
+  );
   addPath([
     `M${x} ${y + radius + radius2}`,
     `a${radius} ${radius} 0 0 1 ${radius} ${-radius}`,
@@ -116,9 +118,9 @@ function needle(x, y, width, height, r1, r2) {
   addPath([
     `M${x} ${y}`,
     `a${r1} ${r1} 0 0 1 ${r1 * 2} 0`,
-    `l${-(r1 - r2) * 0.3 }, ${height * 0.3 - BREAKAWAY}`,
+    `l${-(r1 - r2) * 0.3}, ${height * 0.3 - BREAKAWAY}`,
     `m0, ${BREAKAWAY}`,
-    `l${-(r1 - r2) * 0.7 }, ${height * 0.7 }`,
+    `l${-(r1 - r2) * 0.7}, ${height * 0.7}`,
     `a${r2} ${r2} 0 0 1 ${-r2 * 2} 0`,
     // `l${-r1 + r2}, ${-height}`,
     `l${-(r1 - r2) * 0.3}, ${-(height * 0.3 - BREAKAWAY)}`,
@@ -137,7 +139,7 @@ function needle(x, y, width, height, r1, r2) {
 
 function comb(x, y, width, teeth, radius) {
   const height = teeth * 20 - 10;
-  const toothLength = 60;
+  const toothLength = width - radius;
   comment("Comb");
   addPath([
     `M${x} ${y + radius}`,
@@ -145,7 +147,7 @@ function comb(x, y, width, teeth, radius) {
     `m${BREAKAWAY},0`,
     Array(teeth)
       .fill(0)
-      .map((_) => tooth(60))
+      .map(_ => tooth(toothLength))
       .join(" a5 5 0 0 0 0 10 "),
     `m${-BREAKAWAY},0`,
     `a${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
@@ -165,8 +167,8 @@ function loom() {
   needle(50, 130, 30, 300, 10, 4);
   needle(220, 130, 30, 300, 10, 4);
   comb(100, 150, 90, 13, 30);
-  text('text1', 30);
-  text('text2', 540);
+  text("text1", 30);
+  text("text2", 540);
 }
 
 loom();
