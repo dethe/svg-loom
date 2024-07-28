@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SVG Loom</title>
     <link rel="canonical" href="https://svg-loom.glitch.me/" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <meta name="description" content="A parameterized loom for laser cutting" />
     <meta name="robots" content="index,follow" />
     <meta property="og:title" content="SVG Loom" />
@@ -13,10 +14,6 @@
     <meta
       property="og:description"
       content="A parameterized loom for laser cutting"
-    />
-    <meta
-      property="og:image"
-      content="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2Fhello-website-social.png?v=1616712748147"
     />
     <meta name="twitter:card" content="summary" />
 
@@ -28,9 +25,6 @@
     <title>SVG Loom</title>
     <main>
       <svg
-        viewbox="0 0 290 580"
-        width="3.5in"
-        height="7.125in"
         fill="none"
         stroke="black"
         xmlns="http://www.w3.org/2000/svg"
@@ -50,15 +44,29 @@
     <form>
       <!--       <p><label>Number of teeth <input value="12"></label></p> -->
       <p>
+        <h3>Size</h3>
+        <label><input type="radio" name="loom_size" value="large"> Large - 20 warp, 4.25"x8.5" (11x22 cm)</label><br />
+        <label><input type="radio" name="loom_size" value="medium" checked> Medium - 16 warp, 3.5"x7" (9x18 cm)</label><br />
+        <label><input type="radio" name="loom_size" value="small"> Small - 12 warp, 2.75"x5.5" (7x14 cm)</label><br />
+      </p>
+      <p>
         <label
           >Top Text
+<<<<<<< HEAD
           <input id="text1" value="https://svg-loom.glitch.me/" />
+=======
+          <input type="text" id="text1" value="https://svg-loom.glitch.me/" />
+>>>>>>> glitch
         </label>
       </p>
       <p>
         <label
           >Bottom Text
+<<<<<<< HEAD
           <input id="text2" value="dethe@livingcode.org" />
+=======
+          <input type="text" id="text2" value="dethe@livingcode.org" />
+>>>>>>> glitch
         </label>
       </p>
       <p>

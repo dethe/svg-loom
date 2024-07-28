@@ -27,33 +27,54 @@ function html(name, attributes) {
 }
 
 function addPath(path) {
-  svg.append(elem("path", { d: path.join(" ") }));
+  let e = elem("path", { d: path.join(" ") });
+  svg.append(e);
+  return e.getBBox().width;
 }
 
 function comment(txt) {
   svg.append(document.createComment(txt));
 }
 
-function outerFrame(x, y, width, height, radius) {
+function clear() {
+  console.log("clearing %s children", svg.children.length - 1);
+  while (svg.lastElementChild.tagName !== "style") {
+    svg.lastElementChild.remove();
+  }
+  if (svg.children.length > 1) {
+    console.error(
+      "something went wrong, there are still %s children",
+      svg.children.length
+    );
+  }
+}
+
+function resize(width, height) {
+  svg.setAttribute("width", width / 80 + 0.1 + "in");
+  svg.setAttribute("height", height / 80 + 0.1 + "in");
+}
+
+function outerFrame(x, y, teeth, height) {
   comment("The outer frame of the loom with teeth and locks for yarn");
+  const radius = 20;
   const r2 = radius * 2;
-  addPath([
+  return addPath([
     `M${x} ${y + radius}`,
     lock(1),
     `a${radius} ${radius} 0 0 1 ${radius} ${-radius}`,
-    Array(12)
+    Array(teeth)
       .fill(0)
-      .map(_ => notch(1))
-      .join(" h10 "),
+      .map(_ => roundNotch(1))
+      .join(" "),
     `a${radius} ${radius} 0 0 1 ${radius} ${radius}`,
     lock(-1),
     `v${height - r2}`,
     lock(-1),
     `a${radius} ${radius} 0 0 1 ${-radius} ${radius}`,
-    Array(12)
+    Array(teeth)
       .fill(0)
-      .map(_ => notch(-1))
-      .join(" h-10 "),
+      .map(_ => roundNotch(-1))
+      .join(" "),
     `a${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
     lock(1),
     "z",
@@ -71,16 +92,28 @@ function rect(x, y, width, height, stroke) {
   svg.appendChild(elem("rect", { x, y, width, height, stroke }));
 }
 
-function text(textId, y) {
+function text(textId, x, y) {
   let source = document.getElementById(textId);
-  let t = elem("text", { x: 140, y });
+  let t = elem("text", { x, y, id: textId + "_svg" });
   t.textContent = source.value;
   svg.appendChild(t);
-  source.oninput = evt => (t.textContent = source.value);
 }
 
 function notch(dir) {
   return `v${10 * dir} a5 5 0 0 0 ${10 * dir} 0 v${-10 * dir}`;
+}
+
+function roundNotch(dir) {
+  // each adds 15 to width
+  return [
+    `h${1 * dir}`,
+    `a2 2 0 0 1 ${2 * dir} ${2 * dir}
+      v${7 * dir}
+      a4.5 4.5 0 0 0 ${9 * dir} 0
+      v${-7 * dir}
+      a2 2 0 0 1 ${2 * dir} ${-2 * dir}`,
+    `h${1 * dir}`,
+  ].join(" ");
 }
 
 // Prop for display, and to hold comb and needles
@@ -138,7 +171,7 @@ function needle(x, y, width, height, r1, r2) {
 }
 
 function comb(x, y, width, teeth, radius) {
-  const height = teeth * 20 - 10;
+  const height = teeth * 16 - 8;
   const toothLength = width - radius;
   comment("Comb");
   addPath([
@@ -148,7 +181,7 @@ function comb(x, y, width, teeth, radius) {
     Array(teeth)
       .fill(0)
       .map(_ => tooth(toothLength))
-      .join(" a5 5 0 0 0 0 10 "),
+      .join(" a4 4 0 0 0 0 8 "),
     `m${-BREAKAWAY},0`,
     `a${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
     `v${-(height - radius * 2)}`,
@@ -156,22 +189,60 @@ function comb(x, y, width, teeth, radius) {
 }
 
 function tooth(length) {
-  return `h${length - 5} a5 5 0 0 1 0 10 h${-(length - 5)}`;
+  return `h${length - 8} a4 4 0 0 1 0 8 h${-(length - 8)}`;
 }
 
-function loom() {
-  outerFrame(0, 0, 280, 570, 30);
-  rect(20, 50, 250, 470, "red"); // decorative
-  innerFrame(30, 70, 230, 380, 30);
-  rect(55, 470, 170, 14); // slot for stand
-  needle(50, 130, 30, 300, 10, 4);
-  needle(220, 130, 30, 300, 10, 4);
-  comb(100, 150, 90, 13, 30);
-  text("text1", 30);
-  text("text2", 540);
+function loomWithAccessories(teeth) {
+  const width = teeth * 15 + 40;
+  const height = width * 2;
+  clear();
+  resize(width, height);
+  let actualWidth = outerFrame(0, 0, teeth, height, 20); // should be 280 or 3.5"
+  if (actualWidth !== width) {
+    console.error("Expected %s, but got %s", width, actualWidth);
+  } else {
+    console.log('All good, %s" wide', width / 80);
+  }
+  // original height = 570
+  rect(20, 50, width - 40, height - 100, "red"); // decorative
+  innerFrame(30, 70, width - 60, height - 190, 30);
+  rect(55, height - 100, width - 120, 14); // slot for stand
+  let needleHeight = height / 2 - 35;
+  let needleWidth = needleHeight / 10;
+  needle(50, 70 + height / 10, needleWidth, needleHeight, 10, 4);
+  needle(width - 60, 70 + height / 10, needleWidth, needleHeight, 10, 4);
+  let combWidth = Math.round(width / 4);
+  comb(
+    width / 2 - combWidth / 2,
+    60 + height / 10,
+    Math.round(width / 4),
+    teeth + 1,
+    20
+  );
+  text("text1", width / 2, 30);
+  text("text2", width / 2, height - 30);
 }
 
-loom();
+loomWithAccessories(16);
+
+function chooseSize(evt) {
+  console.log(evt);
+  switch (evt.currentTarget.value) {
+    case "large":
+      loomWithAccessories(20);
+      break;
+    case "medium":
+      loomWithAccessories(16);
+      break;
+    case "small":
+      loomWithAccessories(12);
+      break;
+    default:
+      // do nothing
+      console.log(evt.currentTarget.value);
+      break;
+  }
+}
 
 function downloadFile() {
   save(`${SVGHEAD}${svg.outerHTML}`);
@@ -192,6 +263,22 @@ function save(data) {
   reader.readAsDataURL(new Blob([data], { type: "image/svg+xml" }));
 }
 
+function setValue(evt) {
+  let source = evt.currentTarget;
+  let target = svg.querySelector("#" + source.id + "_svg");
+  target.textContent = source.value;
+}
+
+// setup event handlers
+
 document
   .querySelector("#download-file")
   .addEventListener("click", downloadFile);
+
+document
+  .querySelectorAll("input[type='radio']")
+  .forEach(e => e.addEventListener("input", chooseSize));
+
+document
+  .querySelectorAll("input[type='text']")
+  .forEach(e => e.addEventListener("input", setValue));
