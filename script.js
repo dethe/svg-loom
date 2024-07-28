@@ -211,7 +211,7 @@ function loomWithAccessories(teeth) {
   let needleWidth = needleHeight / 10;
   needle(50, 130, needleWidth, needleHeight, 10, 4);
   needle(width - 60, 130, needleWidth, needleHeight, 10, 4);
-  comb(100, 150, 90, 13, 30);
+  comb(100, 150, Math.round(width / 3), teeth + 1, 20);
   text("text1", width / 2, 30);
   text("text2", width / 2, height - 30);
 }
