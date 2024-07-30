@@ -81,15 +81,48 @@ function outerFrame(x, y, teeth, height) {
   ]);
 }
 
+function frameTiny(x, y, teeth, height) {
+  const radius = 5;
+  const r2 = radius * 2;
+  const lockHeight = 10;
+  return addPath([
+    `M${x} ${y + radius + lockHeight}`,
+    lockTiny(1),
+    `a${radius} ${radius} 0 0 1 ${radius} ${-radius}`,
+    Array(teeth)
+      .fill(0)
+      .map(_ => roundNotchTiny(1))
+      .join(" "),
+    `a${radius} ${radius} 0 0 1 ${radius} ${radius}`,
+    lockTiny(-1),
+    `v${height - r2}`,
+    `a${radius} ${radius} 0 0 1 ${-radius} ${radius}`,
+    Array(teeth)
+      .fill(0)
+      .map(_ => roundNotchTiny(-1))
+      .join(" "),
+    `a${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
+    "z",
+  ]);
+}
+
 function lock(dir) {
   return `l${15 * dir} ${-1 * dir} a3 3 0 1 0 0 ${-2 * dir} l${-15 * dir} ${
     -1 * dir
   }`;
 }
 
+function lockTiny(dir) {
+  return `v${-4 * dir} h${4 * dir} v${-2 * dir} h${-4 * dir} v${-4 * dir}`;
+}
+
 function rect(x, y, width, height, stroke) {
   stroke = stroke || "black";
   svg.appendChild(elem("rect", { x, y, width, height, stroke }));
+}
+
+function circle(cx, cy, r) {
+  svg.appendChild(elem("circle", { cx, cy, r }));
 }
 
 function text(textId, x, y) {
@@ -105,15 +138,24 @@ function notch(dir) {
 
 function roundNotch(dir) {
   // each adds 15 to width
-  return [
-    `h${1 * dir}`,
-    `a2 2 0 0 1 ${2 * dir} ${2 * dir}
-      v${7 * dir}
-      a4.5 4.5 0 0 0 ${9 * dir} 0
-      v${-7 * dir}
-      a2 2 0 0 1 ${2 * dir} ${-2 * dir}`,
-    `h${1 * dir}`,
-  ].join(" ");
+  return `
+    h${1 * dir}
+    a2 2 0 0 1 ${2 * dir} ${2 * dir}
+    v${7 * dir}
+    a4.5 4.5 0 0 0 ${9 * dir} 0
+    v${-7 * dir}
+    a2 2 0 0 1 ${2 * dir} ${-2 * dir}
+    h${1 * dir}`;
+}
+
+function roundNotchTiny(dir) {
+  // each adds 6 to width
+  return `
+    a2 2 0 0 1 ${2 * dir} ${2 * dir}
+    v${1 * dir}
+    a1 1 0 0 0 ${2 * dir} 0
+    v${-1 * dir}
+    a2 2 0 0 1 ${2 * dir} ${-2 * dir}`;
 }
 
 // Prop for display, and to hold comb and needles
@@ -192,6 +234,52 @@ function tooth(length) {
   return `h${length - 8} a4 4 0 0 1 0 8 h${-(length - 8)}`;
 }
 
+function tinyLoomRectangle() {
+  const x = 1;
+  const y = 1;
+  const teeth = 12;
+  const corners = 10;
+  const toothWidth = 6;
+  const lockHeight = 10;
+  const width = teeth * toothWidth + corners;
+  const height = width * 2 + lockHeight;
+  clear();
+  resize(width, height);
+  frameTiny(1, 1, teeth, height);
+  const vertInset = 15;
+  const horizInset = 10;
+  rect(
+    horizInset + x,
+    vertInset + y + lockHeight,
+    width - horizInset * 2,
+    height - vertInset * 2
+  );
+  circle(width / 2, vertInset, 2);
+}
+
+function tinyLoomSquare() {
+  const x = 1;
+  const y = 1;
+  const teeth = 12;
+  const corners = 10;
+  const toothWidth = 6;
+  const lockHeight = 10;
+  const width = teeth * toothWidth + corners;
+  const height = width;
+  clear();
+  resize(width, height);
+  frameTiny(1, 1, teeth, height);
+  const vertInset = 10;
+  const horizInset = 10;
+  rect(
+    horizInset + x,
+    vertInset + y + lockHeight / 2,
+    width - horizInset * 2,
+    height - vertInset * 2
+  );
+  circle(horizInset, vertInset, 2);
+}
+
 function loomWithAccessories(teeth) {
   const width = teeth * 15 + 40;
   const height = width * 2;
@@ -224,6 +312,7 @@ function loomWithAccessories(teeth) {
 }
 
 loomWithAccessories(16);
+//tinyLoomRectangle();
 
 function chooseSize(evt) {
   console.log(evt);
@@ -236,6 +325,15 @@ function chooseSize(evt) {
       break;
     case "small":
       loomWithAccessories(12);
+      break;
+    case "earring_rectangle":
+      tinyLoomRectangle();
+      break;
+    case "earring_square":
+      tinyLoomSquare();
+      break;
+    case "earring_circle":
+      tinyLoomCircle();
       break;
     default:
       // do nothing
