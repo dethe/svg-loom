@@ -1,5 +1,3 @@
-# SVG Loom
+Moved project to Codeberg: https://codeberg.org/dethe/svg-loom for all the reasons given by the [Give Up Github](https://sfconservancy.org/GiveUpGitHub/) campaign.
 
-A work in progress with the goal of making a parameterized SVG generator for laser cut looms.
-
-Currently makes 3 sizes of hand looms and 3 sizes of (experimental) earring-sized looms.
+Visible on my site: https://livingcode.org/projects/svg-loom
