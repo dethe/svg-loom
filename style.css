@@ -11,3 +11,12 @@ main {
   order: 2;
   flex: 3 0 auto;
 }
+
+body:not(.earring) .earringYes{
+  display: none;
+}
+
+body.earring .earringNo{
+  display: none;
+}
+

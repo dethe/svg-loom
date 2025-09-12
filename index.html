@@ -41,7 +41,7 @@
         <!--viewport units are 1/80 of an inch -->
       </svg>
     </main>
-    <form>
+    <form autocomplete="off">
       <!--       <p><label>Number of teeth <input value="12"></label></p> -->
       <p>
         <h3>Size</h3>
@@ -50,15 +50,20 @@
         <label><input type="radio" name="loom_size" value="small"> Small - 12 warp, 2.75"x5.5" (7x14 cm)</label><br />
         <label><input type="radio" name="loom_size" value="earring_rectangle"> Earring - rectangular</label><br />
         <label><input type="radio" name="loom_size" value="earring_square"> Earring - square</label><br />
-        <label><input type="radio" name="loom_size" value="earring_circle"> Earring - circle</label><br />
+        <label><input type="radio" name="loom_size" value="earring_flag"> Earring - horizontal rectangle</label><br />
+        <!-- <label><input type="radio" name="loom_size" value="earring_circle"> Earring - circle</label><br /> -->
       </p>
-      <p>
+      <p class="earringYes">
+        <label><input type="checkbox" name="dangle"> Dangle from corner</label><br />
+      </p>
+        <h3 class="earringNo">Text will show on hand looms only</h3>
+      <p class="earringNo">
         <label
           >Top Text
           <input type="text" id="text1" value="https://svg-loom.glitch.me/" />
         </label>
       </p>
-      <p>
+      <p class="earringNo">
         <label
           >Bottom Text
           <input type="text" id="text2" value="dethe@livingcode.org" />
