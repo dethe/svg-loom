@@ -5,6 +5,10 @@ const SVGHEAD = `<?xml version="1.0" standalone="yes"?>
 // Viewport units are 1/80 of an inch, set in index.html
 
 const BREAKAWAY = 1;
+let dangleCorner = false;
+const TINY_CORNER_RADIUS = 5;
+const TINY_LOCK_HEIGHT = 20;
+const TINY_HORIZONTAL_OFFSET = 3;
 
 function elem(name, attributes) {
   let e = document.createElementNS(SVGNS, name);
@@ -37,7 +41,6 @@ function comment(txt) {
 }
 
 function clear() {
-  console.log("clearing %s children", svg.children.length - 1);
   while (svg.lastElementChild.tagName !== "style") {
     svg.lastElementChild.remove();
   }
@@ -92,6 +95,10 @@ function rect(x, y, width, height, stroke) {
   svg.appendChild(elem("rect", { x, y, width, height, stroke }));
 }
 
+function circle(cx, cy, r) {
+  svg.appendChild(elem("circle", { cx, cy, r }));
+}
+
 function text(textId, x, y) {
   let source = document.getElementById(textId);
   let t = elem("text", { x, y, id: textId + "_svg" });
@@ -105,15 +112,14 @@ function notch(dir) {
 
 function roundNotch(dir) {
   // each adds 15 to width
-  return [
-    `h${1 * dir}`,
-    `a2 2 0 0 1 ${2 * dir} ${2 * dir}
-      v${7 * dir}
-      a4.5 4.5 0 0 0 ${9 * dir} 0
-      v${-7 * dir}
-      a2 2 0 0 1 ${2 * dir} ${-2 * dir}`,
-    `h${1 * dir}`,
-  ].join(" ");
+  return `
+    h${1 * dir}
+    a2 2 0 0 1 ${2 * dir} ${2 * dir}
+    v${7 * dir}
+    a4.5 4.5 0 0 0 ${9 * dir} 0
+    v${-7 * dir}
+    a2 2 0 0 1 ${2 * dir} ${-2 * dir}
+    h${1 * dir}`;
 }
 
 // Prop for display, and to hold comb and needles
@@ -192,16 +198,80 @@ function tooth(length) {
   return `h${length - 8} a4 4 0 0 1 0 8 h${-(length - 8)}`;
 }
 
+function roundNotchTiny(dir) {
+  // each adds 6 to width
+  return `
+    a2 2 0 0 1 ${2 * dir} ${2 * dir}
+    v${3 * dir}
+    a1 1 0 0 0 ${2 * dir} 0
+    v${-3 * dir}
+    a2 2 0 0 1 ${2 * dir} ${-2 * dir}`;
+}
+
+function lockTiny(dir) {
+  return `v${-9.5 * dir} l${4 * dir} ${-0.5 * dir} ${-4 * dir} ${-0.5 * dir} v${
+    -9.5 * dir
+  }`;
+}
+
+function frameTiny(teeth, height) {
+  const radius = TINY_CORNER_RADIUS;
+  const r1 = radius + TINY_LOCK_HEIGHT;
+  const r2 = radius * 2 + TINY_LOCK_HEIGHT;
+  const hoff = TINY_HORIZONTAL_OFFSET;
+  document.body.classList.add("earring");
+  return addPath([
+    `M${0} ${r1}`,
+    lockTiny(1),
+    `a${radius} ${radius} 0 0 1 ${radius} ${-radius}`,
+    `h${hoff}`,
+    Array(teeth)
+      .fill(0)
+      .map(_ => roundNotchTiny(1))
+      .join(" "),
+    `h${hoff}`,
+    `a${radius} ${radius} 0 0 1 ${radius} ${radius}`,
+    lockTiny(-1),
+    `v${height - r2}`,
+    `a${radius} ${radius} 0 0 1 ${-radius} ${radius}`,
+    `h-${hoff}`,
+    Array(teeth)
+      .fill(0)
+      .map(_ => roundNotchTiny(-1))
+      .join(" "),
+    `h-${hoff}`,
+    `a${radius} ${radius} 0 0 1 ${-radius} ${-radius}`,
+    "z",
+  ]);
+}
+
+function earring(teeth, heightFactor) {
+  const corners = 10;
+  const toothWidth = 6;
+  const width = teeth * toothWidth + corners + TINY_HORIZONTAL_OFFSET * 2;
+  const height = width * heightFactor + TINY_LOCK_HEIGHT;
+  clear();
+  resize(width, height);
+  frameTiny(teeth, height);
+  const vertInset = 15;
+  const horizInset = 10;
+  rect(horizInset, vertInset, width - horizInset * 2, height - vertInset * 2);
+  if (dangleCorner) {
+    circle(TINY_CORNER_RADIUS, TINY_CORNER_RADIUS + TINY_HORIZONTAL_OFFSET, 2);
+  } else {
+    circle(width / 2, horizInset, 2);
+  }
+}
+
 function loomWithAccessories(teeth) {
   const width = teeth * 15 + 40;
   const height = width * 2;
+  document.body.classList.remove("earring");
   clear();
   resize(width, height);
   let actualWidth = outerFrame(0, 0, teeth, height, 20); // should be 280 or 3.5"
   if (actualWidth !== width) {
     console.error("Expected %s, but got %s", width, actualWidth);
-  } else {
-    console.log('All good, %s" wide', width / 80);
   }
   // original height = 570
   rect(20, 50, width - 40, height - 100, "red"); // decorative
@@ -223,28 +293,45 @@ function loomWithAccessories(teeth) {
   text("text2", width / 2, height - 30);
 }
 
-loomWithAccessories(16);
+let large = () => loomWithAccessories(20);
+let medium = () => loomWithAccessories(16);
+let small = () => loomWithAccessories(12);
+let tinyLoomRectangle = () => earring(12, 2);
+let tinyLoomSquare = () => earring(12, 1);
+let tinyLoomFlag = () => earring(24, 0.5);
+let current = medium;
+current();
 
 function chooseSize(evt) {
-  console.log(evt);
   switch (evt.currentTarget.value) {
     case "large":
-      loomWithAccessories(20);
+      current = large;
       break;
     case "medium":
-      loomWithAccessories(16);
+      current = medium;
       break;
     case "small":
-      loomWithAccessories(12);
+      current = small;
+      break;
+    case "earring_rectangle":
+      current = tinyLoomRectangle;
+      break;
+    case "earring_square":
+      current = tinyLoomSquare;
+      break;
+    case "earring_flag":
+      current = tinyLoomFlag;
       break;
     default:
       // do nothing
       console.log(evt.currentTarget.value);
       break;
   }
+  current();
 }
 
-function downloadFile() {
+function downloadFile(evt) {
+  evt.preventDefault();
   save(`${SVGHEAD}${svg.outerHTML}`);
 }
 
@@ -269,6 +356,15 @@ function setValue(evt) {
   target.textContent = source.value;
 }
 
+function setDangle(evt) {
+  if (evt.currentTarget.checked) {
+    dangleCorner = true;
+  } else {
+    dangleCorner = false;
+  }
+  current();
+}
+
 // setup event handlers
 
 document
@@ -282,3 +378,7 @@ document
 document
   .querySelectorAll("input[type='text']")
   .forEach(e => e.addEventListener("input", setValue));
+
+document
+  .querySelectorAll("input[type='checkbox']")
+  .forEach(e => e.addEventListener("change", setDangle));
